@@ -2,21 +2,21 @@ import { StatusBar } from "expo-status-bar";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import AppColors from "./constants/AppColors";
-import { StyleSheet, useColorScheme, Text } from "react-native";
-import { useCallback } from "react";
+import { StyleSheet } from "react-native";
+import { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import Home from "./screens/Home";
 import Habits from "./screens/Habits";
 import Insights from "./screens/Insights";
 import Profile from "./screens/Profile";
 import AddHabit from "./screens/AddHabit";
-import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
+import { useFonts } from "expo-font";
+import { setupDbTablesForce } from "./util/dbUtil";
+import { SQLiteProvider } from "./components/hookProviders/SQLiteProvider";
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
-
-SplashScreen.preventAutoHideAsync();
 
 function DrawerNavigator() {
   return (
@@ -73,6 +73,10 @@ function DrawerNavigator() {
   );
 }
 
+SplashScreen.preventAutoHideAsync();
+
+setupDbTablesForce();
+
 export default function App() {
   const [fontsLoaded, fontError] = useFonts({
     regular: require("./assets/fonts/Titillium_Web/TitilliumWeb-Regular.ttf"),
@@ -80,9 +84,9 @@ export default function App() {
     regularItalic: require("./assets/fonts/Titillium_Web/TitilliumWeb-Italic.ttf"),
   });
 
-  const onLayoutRootView = useCallback(async () => {
+  useEffect(() => {
     if (fontsLoaded || fontError) {
-      await SplashScreen.hideAsync();
+      SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
 
@@ -94,33 +98,35 @@ export default function App() {
     <>
       <StatusBar style="auto" />
 
-      <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            headerStyle: {
-              backgroundColor: AppColors.dark_background,
-            },
-            headerBackVisible: false,
-            headerShadowVisible: false,
-          }}
-        >
-          <Stack.Screen
-            name="Drawer"
-            component={DrawerNavigator}
-            options={{
-              headerShown: false,
+      <SQLiteProvider>
+        <NavigationContainer>
+          <Stack.Navigator
+            screenOptions={{
+              headerStyle: {
+                backgroundColor: AppColors.dark_background,
+              },
+              headerBackVisible: false,
+              headerShadowVisible: false,
             }}
-          />
-          <Stack.Screen
-            name="AddHabit"
-            component={AddHabit}
-            options={{
-              title: "",
-              drawerLabel: "Home",
-            }}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
+          >
+            <Stack.Screen
+              name="Drawer"
+              component={DrawerNavigator}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="AddHabit"
+              component={AddHabit}
+              options={{
+                title: "",
+                drawerLabel: "Home",
+              }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </SQLiteProvider>
     </>
   );
 }
