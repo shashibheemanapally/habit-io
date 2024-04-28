@@ -33,7 +33,7 @@ export default function HomeYesterDay({}) {
                   return o1.perf === null ? -1 : 1;
                 })
             );
-            console.log(_array);
+            // console.log(_array);
           }
         );
       });
@@ -121,7 +121,7 @@ export default function HomeYesterDay({}) {
   }
 
   function getCurrentMood(perf) {
-    console.log("perf is ", perf);
+    // console.log("perf is ", perf);
     if (perf === 1) {
       return "sad";
     } else if (perf === 2) {

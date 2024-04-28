@@ -14,14 +14,28 @@ import { useFocusEffect } from "@react-navigation/native";
 import { Picker } from "@react-native-picker/picker";
 import HomeListItem from "../components/HomeListitem";
 import { useNavigation } from "@react-navigation/native";
-import { FAB } from "react-native-paper";
+import { Button, FAB } from "react-native-paper";
 import { Entypo } from "@expo/vector-icons";
 
 export default function Home({}) {
   const db = useSQLite();
   const [currentDate, setCurrentDate] = useState(todayDate());
   const [habitItems, setHabitItems] = useState([]);
+  const [userName, setUserName] = useState("");
   const navigation = useNavigation();
+
+  function scheduleNotificationHandler() {
+    Notifications.scheduleNotificationAsync({
+      content: {
+        title: "My first local notification",
+        body: "This is the body of the notification.",
+        data: { userName: "Max" },
+      },
+      trigger: {
+        seconds: 5,
+      },
+    });
+  }
 
   useFocusEffect(
     React.useCallback(() => {
@@ -37,7 +51,16 @@ export default function Home({}) {
                   return o1.perf === null ? -1 : 1;
                 })
             );
-            console.log(_array);
+            // console.log(_array);
+          }
+        );
+        tx.executeSql(
+          `SELECT * from user_info`,
+          [],
+          (_, { rows: { _array } }) => {
+            if (_array.length !== 0) {
+              setUserName(_array[0].name);
+            }
           }
         );
       });
@@ -129,7 +152,7 @@ export default function Home({}) {
   }
 
   function getCurrentMood(perf) {
-    console.log("perf is ", perf);
+    // console.log("perf is ", perf);
     if (perf === 1) {
       return "sad";
     } else if (perf === 2) {
@@ -180,7 +203,7 @@ export default function Home({}) {
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
-        <Text style={styles.headingText}>Welcome Shashi! </Text>
+        <Text style={styles.headingText}>Welcome {userName}! </Text>
         <View style={styles.separator}></View>
 
         <Text style={styles.subHeadingText}>
@@ -188,6 +211,19 @@ export default function Home({}) {
         </Text>
 
         <View style={styles.separator}></View>
+
+        {habitItems.length === 0 ? (
+          <View style={styles.noHabitsContainer}>
+            <Text
+              style={[styles.subHeadingText, { fontFamily: "regularItalic" }]}
+            >
+              No scheduled habits to display today, try adding new habits from
+              the menu
+            </Text>
+          </View>
+        ) : (
+          <></>
+        )}
 
         {/* <View style={styles.currentDatePickerContainer}>
           <Picker
@@ -258,7 +294,7 @@ const styles = StyleSheet.create({
     fontFamily: "bold",
   },
   separator: {
-    height: 40,
+    height: 20,
   },
   currentDatePicker: {
     width: "100%",
@@ -271,7 +307,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   habbitFlatList: {
-    height: "74%",
+    height: "72%",
     flexGrow: 0,
   },
   subHeadingContainer: {
@@ -284,5 +320,12 @@ const styles = StyleSheet.create({
     margin: 16,
     left: 0,
     bottom: 20,
+  },
+  noHabitsContainer: {
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 20,
+    marginVertical: 50,
+    borderColor: "white",
   },
 });

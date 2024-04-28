@@ -11,6 +11,39 @@ function HabitListItem({
   hideHabitTogglePress,
   hidden,
 }) {
+  function getFormattedScheduleText(scheduleInfo) {
+    const arr = scheduleInfo.split("|");
+    if (arr[0] === "weekdays") {
+      let daysText = "";
+      const daysArr = arr[2].split(",");
+      if (daysArr.includes("0")) {
+        daysText = daysText + "Sun ";
+      }
+      if (daysArr.includes("1")) {
+        daysText = daysText + "Mon ";
+      }
+      if (daysArr.includes("2")) {
+        daysText = daysText + "Tue ";
+      }
+      if (daysArr.includes("3")) {
+        daysText = daysText + "Wed ";
+      }
+      if (daysArr.includes("4")) {
+        daysText = daysText + "Thu ";
+      }
+      if (daysArr.includes("5")) {
+        daysText = daysText + "Fri ";
+      }
+      if (daysArr.includes("6")) {
+        daysText = daysText + "Sat ";
+      }
+
+      const freqText = arr[1] === "1" ? " week" : arr[1] + " weeks";
+      return "On " + daysText + ", every " + freqText;
+    } else if (arr[0] === "fixeddays") {
+      return "For every " + arr[1] + " days";
+    }
+  }
   return (
     <View style={styles.buttonOuterContainer}>
       <Pressable
@@ -25,7 +58,9 @@ function HabitListItem({
       >
         <Text style={styles.buttonText}>{children}</Text>
         <View style={styles.shceduleInfoContainer}>
-          <Text style={styles.simpleText}>{scheduleInfo}</Text>
+          <Text style={styles.simpleText}>
+            {getFormattedScheduleText(scheduleInfo)}
+          </Text>
         </View>
       </Pressable>
       <FAB

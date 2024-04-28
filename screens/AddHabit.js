@@ -1,7 +1,7 @@
 import { Pressable, ScrollView, TextInput, View } from "react-native";
 import { StyleSheet, Text } from "react-native";
 import AppColors from "../constants/AppColors";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { useSQLite } from "../components/hookProviders/SQLiteProvider";
 import { Picker } from "@react-native-picker/picker";
@@ -9,6 +9,8 @@ import { todayDate } from "../util/calUtil";
 import { Button, FAB } from "react-native-paper";
 import { addNewHabit } from "../util/dbUtil";
 import WeekDaySelector from "../components/WeekDaySelector";
+import { Calendar } from "react-native-calendars";
+import { isValidForWeekDays, isValidForFixedDays } from "../util/calUtil";
 
 export default function AddHabit({}) {
   const db = useSQLite();
@@ -27,18 +29,19 @@ export default function AddHabit({}) {
     true,
     false,
   ]);
+  const [markedDates, setMarkedDates] = useState({});
+
+  function formatWeekDays(weekDays) {
+    let result = "";
+    for (let i = 0; i < weekDays.length; i++) {
+      if (weekDays[i]) {
+        result = result + i + ",";
+      }
+    }
+    return result.slice(0, -1);
+  }
 
   function addNewHabitHandler() {
-    function formatWeekDays(weekDays) {
-      let result = "";
-      for (let i = 0; i < weekDays.length; i++) {
-        if (weekDays[i]) {
-          result = result + i + ",";
-        }
-      }
-      return result.slice(0, -1);
-    }
-
     let schedule_info = "";
     if (scheduleType === "On week days") {
       const weekDayIndices = formatWeekDays(weekDays);
@@ -66,6 +69,67 @@ export default function AddHabit({}) {
     weekDays[dayOfTheWeek] = !weekDays[dayOfTheWeek];
     setWeekDays(Array.from(weekDays));
   }
+
+  function isValidForTheDate(givenDate) {
+    if (scheduleType === "On week days") {
+      return isValidForWeekDays(
+        givenDate,
+        startFrom,
+        weekFrequency,
+        formatWeekDays(weekDays)
+      );
+    } else if (scheduleType === "For every fixed number of days") {
+      return isValidForFixedDays(givenDate, startFrom, dayFrequency);
+    }
+    return false;
+  }
+
+  useEffect(() => {
+    const markedDaysTemp = {};
+
+    if (isValidForTheDate(startFrom)) {
+      markedDaysTemp[startFrom.replace(/^(\d{4})(\d{2})(\d{2})$/, "$1-$2-$3")] =
+        {
+          selected: true,
+          selectedColor: "grey",
+          marked: true,
+        };
+    } else {
+      markedDaysTemp[startFrom.replace(/^(\d{4})(\d{2})(\d{2})$/, "$1-$2-$3")] =
+        { selected: true, selectedColor: "grey" };
+    }
+
+    let givenDate = new Date(
+      startFrom.replace(/^(\d{4})(\d{2})(\d{2})$/, "$1-$2-$3")
+    ); // YYYY-MM-DD
+
+    for (let i = 0; i < 150; i++) {
+      givenDate.setDate(givenDate.getDate() + 1);
+
+      // console.log(givenDate);
+
+      const year = givenDate.getFullYear();
+      const month = String(givenDate.getMonth() + 1).padStart(2, "0");
+      const day = String(givenDate.getDate()).padStart(2, "0");
+
+      const dateString = `${year}${month}${day}`;
+      if (dateString === startFrom) {
+        continue;
+      }
+
+      // console.log(dateString);
+
+      if (isValidForTheDate(dateString)) {
+        markedDaysTemp[`${year}-${month}-${day}`] = {
+          marked: true,
+        };
+      }
+    }
+    // console.log(markedDaysTemp);
+    setMarkedDates(markedDaysTemp);
+  }, [scheduleType, weekFrequency, dayFrequency, startFrom, weekDays]);
+
+  function startDateSelecthandler(selectedDate) {}
 
   let scheduleInputComponent = <></>;
 
@@ -154,7 +218,7 @@ export default function AddHabit({}) {
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
-        <Text style={styles.headingText}>Add a new Habit</Text>
+        <Text style={styles.headingText}>Add a new Habit {startFrom}</Text>
         <ScrollView>
           <View style={styles.separator}></View>
           <TextInput
@@ -182,12 +246,21 @@ export default function AddHabit({}) {
             {scheduleInputComponent}
           </View>
           <View style={styles.scheduleContainer}>
-            <Text style={styles.simpleText}>Start from: YYYYMMDD</Text>
-            <TextInput
-              style={styles.scheduleInputText}
-              value={startFrom}
-              onChangeText={(text) => setStartFrom(text)}
-            ></TextInput>
+            <Text style={styles.simpleText}>Start from:</Text>
+            <Calendar
+              theme={{
+                calendarBackground: "transparent",
+                dayTextColor: "#ffffff",
+                selectedDayTextColor: "#000000",
+                monthTextColor: "black",
+              }}
+              onDayPress={(date) => {
+                const [year, month, day] = date.dateString.split("-");
+                const convertedDateString = `${year}${month}${day}`;
+                setStartFrom(convertedDateString);
+              }}
+              markedDates={markedDates}
+            ></Calendar>
           </View>
           <View style={styles.addButtonContainer}>
             <Button

@@ -115,11 +115,7 @@ function getPreviousSunday(dateString) {
   return previousSundayString;
 }
 
-export default function isValidForFixedDays(
-  givenDate,
-  startDate,
-  dayFrequency
-) {
+export function isValidForFixedDays(givenDate, startDate, dayFrequency) {
   return getNumberOfDaysBetween(startDate, givenDate) % dayFrequency === 0;
 }
 

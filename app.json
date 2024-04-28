@@ -1,14 +1,13 @@
 {
   "expo": {
-    "name": "habbit-io-draft",
-    "slug": "habbit-io-draft",
+    "name": "habit-io-draft",
+    "slug": "habit-io-draft",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "backgroundColor": "#191818",
     "splash": {
-      "image": "./assets/splash.png",
       "resizeMode": "cover",
       "backgroundColor": "#191818"
     },
@@ -24,6 +23,15 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./local/assets/icon.png",
+          "color": "#ffffff"
+        }
+      ]
+    ]
   }
 }

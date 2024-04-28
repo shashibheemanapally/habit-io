@@ -15,6 +15,7 @@ import { useFonts } from "expo-font";
 import { setupDbTablesForce } from "./util/dbUtil";
 import { SQLiteProvider } from "./components/hookProviders/SQLiteProvider";
 import HomeYesterDay from "./screens/HomeYesterday";
+import HabitInsightsCalander from "./screens/HabitInsightsCalander";
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -130,6 +131,13 @@ export default function App() {
               options={{
                 title: "",
                 animation: "slide_from_left",
+              }}
+            />
+            <Stack.Screen
+              name="HabitInsightsCalander"
+              component={HabitInsightsCalander}
+              options={{
+                title: "",
               }}
             />
           </Stack.Navigator>

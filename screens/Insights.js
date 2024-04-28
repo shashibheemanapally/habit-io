@@ -4,10 +4,13 @@ import AppColors from "../constants/AppColors";
 import React, { useEffect, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { useSQLite } from "../components/hookProviders/SQLiteProvider";
+import HabitInsight from "../components/HabitInsight";
 
 export default function Insights({}) {
   const db = useSQLite();
+
   const [habitInputItems, setHabitInputItems] = useState(null);
+  const [habitInputInsights, setHabitInputInsights] = useState(null);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -16,8 +19,9 @@ export default function Insights({}) {
           `SELECT * FROM habit_inputs`,
           [],
           (_, { rows: { _array } }) => {
-            console.log(_array);
+            // console.log(_array);
             setHabitInputItems(_array);
+            setHabitInputInsights(getInsights(_array));
           }
         );
       });
@@ -25,6 +29,32 @@ export default function Insights({}) {
       return () => {};
     }, [])
   );
+
+  function getInsights(habitInputs) {
+    const map = new Map();
+    for (let i = 0; i < habitInputs.length; i++) {
+      const habitId = habitInputs[i].habit_id;
+      const mood = habitInputs[i].perf;
+
+      if (!map.has(habitId)) {
+        map.set(habitId, { happy: 0, neutral: 0, sad: 0 });
+      }
+
+      if (mood === 1) {
+        map.get(habitId).sad = map.get(habitId).sad + 1;
+      } else if (mood === 2) {
+        map.get(habitId).neutral = map.get(habitId).neutral + 1;
+      } else if (mood === 3) {
+        map.get(habitId).happy = map.get(habitId).happy + 1;
+      }
+    }
+    const array = Array.from(map, ([habit_id, insight]) => ({
+      habit_id,
+      insight,
+    }));
+    // console.log(array);
+    return array;
+  }
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
@@ -32,17 +62,13 @@ export default function Insights({}) {
         <View style={styles.separator}></View>
         <FlatList
           style={styles.habbitFlatList}
-          data={habitInputItems}
+          data={habitInputInsights}
           renderItem={(itemData) => (
-            <View style={styles.habitInputItemContainer}>
-              <Text style={styles.simpleText}>
-                date: {itemData.item.cal_date}
-              </Text>
-              <Text style={styles.simpleText}>
-                habit_id: {itemData.item.habit_id}
-              </Text>
-              <Text style={styles.simpleText}>perf: {itemData.item.perf}</Text>
-            </View>
+            <HabitInsight
+              habitId={itemData.item.habit_id}
+              insight={itemData.item.insight}
+              habitInputItems={habitInputItems}
+            ></HabitInsight>
           )}
           keyExtractor={(item, index) => index}
         />
