@@ -1,4 +1,4 @@
-import { ScrollView, TextInput, View } from "react-native";
+import { Pressable, ScrollView, TextInput, View } from "react-native";
 import { StyleSheet, Text } from "react-native";
 import AppColors from "../constants/AppColors";
 import { useState } from "react";
@@ -6,8 +6,9 @@ import { useNavigation } from "@react-navigation/native";
 import { useSQLite } from "../components/hookProviders/SQLiteProvider";
 import { Picker } from "@react-native-picker/picker";
 import { todayDate } from "../util/calUtil";
-import { Button } from "react-native-paper";
+import { Button, FAB } from "react-native-paper";
 import { addNewHabit } from "../util/dbUtil";
+import WeekDaySelector from "../components/WeekDaySelector";
 
 export default function AddHabit({}) {
   const db = useSQLite();
@@ -15,16 +16,36 @@ export default function AddHabit({}) {
   const [habitText, setHabitText] = useState("");
   const [scheduleType, setScheduleType] = useState("On week days");
   const [weekFrequency, setWeekFrequency] = useState("1");
-  const [weekDays, setWeekDays] = useState("1,2,3,4,5");
   const [dayFrequency, setDayFrequency] = useState("3");
   const [startFrom, setStartFrom] = useState(todayDate());
+  const [weekDays, setWeekDays] = useState([
+    false,
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+  ]);
 
   function addNewHabitHandler() {
-    console.log("Pressed" + habitText);
+    function formatWeekDays(weekDays) {
+      let result = "";
+      for (let i = 0; i < weekDays.length; i++) {
+        if (weekDays[i]) {
+          result = result + i + ",";
+        }
+      }
+      return result.slice(0, -1);
+    }
 
     let schedule_info = "";
     if (scheduleType === "On week days") {
-      schedule_info = "weekdays|" + weekFrequency + "|" + weekDays;
+      const weekDayIndices = formatWeekDays(weekDays);
+      if (weekDayIndices.length === 0) {
+        return;
+      }
+      schedule_info = "weekdays|" + weekFrequency + "|" + weekDayIndices;
     } else if (scheduleType === "For every fixed number of days") {
       schedule_info = "fixeddays|" + dayFrequency;
     } else {
@@ -41,6 +62,11 @@ export default function AddHabit({}) {
     navigation.goBack();
   }
 
+  function handleWeekDaySelect(dayOfTheWeek) {
+    weekDays[dayOfTheWeek] = !weekDays[dayOfTheWeek];
+    setWeekDays(Array.from(weekDays));
+  }
+
   let scheduleInputComponent = <></>;
 
   if (scheduleType === "On week days") {
@@ -52,15 +78,65 @@ export default function AddHabit({}) {
           value={weekFrequency}
           onChangeText={(text) => setWeekFrequency(text)}
         ></TextInput>
-        <Text style={styles.simpleText}>
-          Week days: sun 0, mon 1, tue 2, wed 3, thu 4, fri 5,sat 6
-        </Text>
-        <TextInput
-          style={styles.scheduleInputText}
-          multiline={true}
-          value={weekDays}
-          onChangeText={(text) => setWeekDays(text)}
-        ></TextInput>
+
+        <View style={styles.weekDaysSelectorContainer}>
+          <WeekDaySelector
+            dayIndex={0}
+            weekDays={weekDays}
+            onPress={() => {
+              handleWeekDaySelect(0);
+            }}
+            weekDayLetter={"S"}
+          ></WeekDaySelector>
+          <WeekDaySelector
+            dayIndex={1}
+            weekDays={weekDays}
+            onPress={() => {
+              handleWeekDaySelect(1);
+            }}
+            weekDayLetter={"M"}
+          ></WeekDaySelector>
+          <WeekDaySelector
+            dayIndex={2}
+            weekDays={weekDays}
+            onPress={() => {
+              handleWeekDaySelect(2);
+            }}
+            weekDayLetter={"T"}
+          ></WeekDaySelector>
+          <WeekDaySelector
+            dayIndex={3}
+            weekDays={weekDays}
+            onPress={() => {
+              handleWeekDaySelect(3);
+            }}
+            weekDayLetter={"W"}
+          ></WeekDaySelector>
+          <WeekDaySelector
+            dayIndex={4}
+            weekDays={weekDays}
+            onPress={() => {
+              handleWeekDaySelect(4);
+            }}
+            weekDayLetter={"T"}
+          ></WeekDaySelector>
+          <WeekDaySelector
+            dayIndex={5}
+            weekDays={weekDays}
+            onPress={() => {
+              handleWeekDaySelect(5);
+            }}
+            weekDayLetter={"F"}
+          ></WeekDaySelector>
+          <WeekDaySelector
+            dayIndex={6}
+            weekDays={weekDays}
+            onPress={() => {
+              handleWeekDaySelect(6);
+            }}
+            weekDayLetter={"S"}
+          ></WeekDaySelector>
+        </View>
       </View>
     );
   } else if (scheduleType === "For every fixed number of days") {
@@ -106,7 +182,7 @@ export default function AddHabit({}) {
             {scheduleInputComponent}
           </View>
           <View style={styles.scheduleContainer}>
-            <Text style={styles.simpleText}>Start from:</Text>
+            <Text style={styles.simpleText}>Start from: YYYYMMDD</Text>
             <TextInput
               style={styles.scheduleInputText}
               value={startFrom}
@@ -190,6 +266,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     color: "white",
     fontFamily: "regular",
+    textAlign: "center",
   },
   simpleText: {
     color: "white",
@@ -202,5 +279,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 24,
     padding: 16,
     width: "auto",
+  },
+  weekDaysSelectorContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    flexWrap: "wrap",
   },
 });

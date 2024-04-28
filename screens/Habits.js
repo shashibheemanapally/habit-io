@@ -19,7 +19,7 @@ export default function Habits({}) {
     React.useCallback(() => {
       db.transaction((tx) => {
         tx.executeSql(
-          `select * from habits where hidden=0;`,
+          `select * from habits;`,
           [],
           (_, { rows: { _array } }) => {
             setHabitItems(_array);
@@ -40,13 +40,9 @@ export default function Habits({}) {
       tx.executeSql("DELETE from habit_inputs;");
     });
     db.transaction((tx) => {
-      tx.executeSql(
-        `select * from habits where hidden=0;`,
-        [],
-        (_, { rows: { _array } }) => {
-          setHabitItems(_array);
-        }
-      );
+      tx.executeSql(`select * from habits;`, [], (_, { rows: { _array } }) => {
+        setHabitItems(_array);
+      });
     });
   }
 
@@ -56,15 +52,36 @@ export default function Habits({}) {
       tx.executeSql("DELETE from habit_inputs where habit_id=?;", [habit_id]);
     });
     db.transaction((tx) => {
-      tx.executeSql(
-        `select * from habits where hidden=0;`,
-        [],
-        (_, { rows: { _array } }) => {
-          setHabitItems(_array);
-        }
-      );
+      tx.executeSql(`select * from habits;`, [], (_, { rows: { _array } }) => {
+        setHabitItems(_array);
+      });
     });
   }
+
+  function hideHabitsWithIdHandler(habit_id) {
+    db.transaction((tx) => {
+      tx.executeSql("UPDATE habits SET hidden=1 where habit_id=?", [habit_id]);
+    });
+    db.transaction((tx) => {
+      tx.executeSql(`select * from habits;`, [], (_, { rows: { _array } }) => {
+        setHabitItems(_array);
+        console.log(_array);
+      });
+    });
+  }
+
+  function unHideHabitsWithIdHandler(habit_id) {
+    db.transaction((tx) => {
+      tx.executeSql("UPDATE habits SET hidden=0 where habit_id=?", [habit_id]);
+    });
+    db.transaction((tx) => {
+      tx.executeSql(`select * from habits;`, [], (_, { rows: { _array } }) => {
+        setHabitItems(_array);
+        console.log(_array);
+      });
+    });
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
@@ -79,25 +96,30 @@ export default function Habits({}) {
                 onLongPress={() =>
                   deleteHabitsWithIdHandler(itemData.item.habit_id)
                 }
+                scheduleInfo={itemData.item.schedule_info}
+                hideHabitTogglePress={() =>
+                  itemData.item.hidden === 0
+                    ? hideHabitsWithIdHandler(itemData.item.habit_id)
+                    : unHideHabitsWithIdHandler(itemData.item.habit_id)
+                }
+                hidden={itemData.item.hidden === 0}
               >
                 {itemData.item.habit_desc}
               </HabitListItem>
-              <Text style={styles.simpleText}>
-                {itemData.item.schedule_info}
-              </Text>
             </View>
           )}
           keyExtractor={(item, index) => index}
         />
         <FAB
           icon={({ color, size }) => (
-            <Entypo name="circle-with-plus" color={"white"} size={size} />
+            <Entypo name="add-to-list" color={"rgb(255, 238, 0)"} size={size} />
           )}
           style={styles.newHabitFab}
           onPress={addNewHabbitHandler}
           backgroundColor={AppColors.dark_panel}
         />
         <FAB
+          size="small"
           icon={({ color, size }) => (
             <Entypo name="trash" color={"red"} size={size} />
           )}
@@ -139,7 +161,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     margin: 16,
     right: 0,
-    bottom: 20,
   },
   habitItemContainer: {
     justifyContent: "center",
@@ -160,7 +181,8 @@ const styles = StyleSheet.create({
   delHabitsFab: {
     position: "absolute",
     margin: 16,
-    right: 0,
+    left: 0,
+    bottom: 20,
   },
   simpleText: {
     color: "white",

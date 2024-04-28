@@ -14,6 +14,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "expo-font";
 import { setupDbTablesForce } from "./util/dbUtil";
 import { SQLiteProvider } from "./components/hookProviders/SQLiteProvider";
+import HomeYesterDay from "./screens/HomeYesterday";
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -121,7 +122,14 @@ export default function App() {
               component={AddHabit}
               options={{
                 title: "",
-                drawerLabel: "Home",
+              }}
+            />
+            <Stack.Screen
+              name="HomeYesterday"
+              component={HomeYesterDay}
+              options={{
+                title: "",
+                animation: "slide_from_left",
               }}
             />
           </Stack.Navigator>

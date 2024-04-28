@@ -13,15 +13,11 @@ import {
 import { useFocusEffect } from "@react-navigation/native";
 import { Picker } from "@react-native-picker/picker";
 import HomeListItem from "../components/HomeListitem";
-import { useNavigation } from "@react-navigation/native";
-import { FAB } from "react-native-paper";
-import { Entypo } from "@expo/vector-icons";
 
-export default function Home({}) {
+export default function HomeYesterDay({}) {
   const db = useSQLite();
-  const [currentDate, setCurrentDate] = useState(todayDate());
+  const [currentDate, setCurrentDate] = useState(subtractNDays(todayDate(), 1));
   const [habitItems, setHabitItems] = useState([]);
-  const navigation = useNavigation();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -45,10 +41,6 @@ export default function Home({}) {
       return () => {};
     }, [])
   );
-
-  function homeYesterDayHandler() {
-    navigation.navigate("HomeYesterday", {});
-  }
 
   // useEffect(() => {
   //   db.transaction((tx) => {
@@ -182,11 +174,9 @@ export default function Home({}) {
       <View style={styles.contentContainer}>
         <Text style={styles.headingText}>Welcome Shashi! </Text>
         <View style={styles.separator}></View>
-
         <Text style={styles.subHeadingText}>
-          {formatDateToUserFriendly(currentDate)} : Today
+          {formatDateToUserFriendly(currentDate)} : Yesterday
         </Text>
-
         <View style={styles.separator}></View>
 
         {/* <View style={styles.currentDatePickerContainer}>
@@ -221,16 +211,6 @@ export default function Home({}) {
           )}
           keyExtractor={(item, index) => item.habit_id}
         />
-        <FAB
-          size="small"
-          icon={({ color, size }) => (
-            <Entypo name="back-in-time" color={"white"} size={size} />
-          )}
-          style={styles.dayToggleFab}
-          onPress={homeYesterDayHandler}
-          backgroundColor={AppColors.dark_panel}
-          rippleColor={"yellow"}
-        />
       </View>
     </View>
   );
@@ -258,7 +238,7 @@ const styles = StyleSheet.create({
     fontFamily: "bold",
   },
   separator: {
-    height: 40,
+    height: 20,
   },
   currentDatePicker: {
     width: "100%",
@@ -273,16 +253,5 @@ const styles = StyleSheet.create({
   habbitFlatList: {
     height: "74%",
     flexGrow: 0,
-  },
-  subHeadingContainer: {
-    flexDirection: "row",
-    alignContent: "center",
-    alignItems: "center",
-  },
-  dayToggleFab: {
-    position: "absolute",
-    margin: 16,
-    left: 0,
-    bottom: 20,
   },
 });

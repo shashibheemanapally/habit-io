@@ -144,22 +144,7 @@ function isValidStartDate(start_date) {
   if (!isValidDate(start_date)) {
     return false;
   }
-
-  // Convert the given date string to a Date object
-  const year = parseInt(start_date.substring(0, 4));
-  const month = parseInt(start_date.substring(4, 6)) - 1; // Month is zero-based in Date object
-  const day = parseInt(start_date.substring(6, 8));
-  const givenDate = new Date(year, month, day);
-
-  // Get the current date
-  const currentDate = new Date();
-
-  // Set hours, minutes, seconds, and milliseconds to 0 to compare only the date part
-  currentDate.setHours(0, 0, 0, 0);
-  givenDate.setHours(0, 0, 0, 0);
-
-  // Compare the given date with the current date
-  return givenDate >= currentDate;
+  return true;
 }
 
 function isValidScheduleInfo(schedule_info) {

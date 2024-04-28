@@ -13,31 +13,47 @@ function HomeListItem({
   onPressDeselect,
 }) {
   const [selectedMood, setSelectedMood] = useState(currentMood);
+  //   const [hasInputGiven, setHasInputGiven] = useState(false);
 
   function selectSadHandler() {
     onPressSad();
     setSelectedMood("sad");
+    // setHasInputGiven(true);
   }
 
   function selectNeutralHandler() {
     onPressNeutral();
     setSelectedMood("neutral");
+    // setHasInputGiven(true);
   }
 
   function selectHappyHandler() {
     onPressHappy();
     setSelectedMood("happy");
+    // setHasInputGiven(true);
   }
 
   function selectNoneHandler() {
     onPressDeselect();
     setSelectedMood("none");
+    // setHasInputGiven(false);
   }
 
   return (
     <Pressable style={styles.itemOuterContainer} onPress={selectNoneHandler}>
       <View style={styles.itemInnerTextContainer}>
-        <Text style={styles.itemText}>{children}</Text>
+        <Text
+          style={[
+            styles.itemText,
+            {
+              textDecorationLine:
+                selectedMood === "none" ? "none" : "line-through",
+              fontFamily: selectedMood === "none" ? "regular" : "regularItalic",
+            },
+          ]}
+        >
+          {children}
+        </Text>
       </View>
       <View style={styles.itemInnerButtonsContainer}>
         <FAB
