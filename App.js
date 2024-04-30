@@ -118,7 +118,7 @@ async function registerForPushNotificationsAsync() {
     // https://docs.expo.dev/push-notifications/push-notifications-setup/#configure-projectid
     token = (
       await Notifications.getExpoPushTokenAsync({
-        projectId: "ef2f6b0f-66ab-4614-bae7-cd193faa844a",
+        projectId: "805aa476-6ff6-427c-82dc-5fbde0846061",
       })
     ).data;
     console.log(token);
