@@ -24,19 +24,6 @@ export default function Home({}) {
   const [userName, setUserName] = useState("");
   const navigation = useNavigation();
 
-  function scheduleNotificationHandler() {
-    Notifications.scheduleNotificationAsync({
-      content: {
-        title: "My first local notification",
-        body: "This is the body of the notification.",
-        data: { userName: "Max" },
-      },
-      trigger: {
-        seconds: 5,
-      },
-    });
-  }
-
   useFocusEffect(
     React.useCallback(() => {
       db.transaction((tx) => {
@@ -55,11 +42,11 @@ export default function Home({}) {
           }
         );
         tx.executeSql(
-          `SELECT * from user_info`,
+          `SELECT * from user_pref where key='userName'`,
           [],
           (_, { rows: { _array } }) => {
             if (_array.length !== 0) {
-              setUserName(_array[0].name);
+              setUserName(_array[0].value);
             }
           }
         );

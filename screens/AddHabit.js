@@ -218,7 +218,7 @@ export default function AddHabit({}) {
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
-        <Text style={styles.headingText}>Add a new Habit {startFrom}</Text>
+        <Text style={styles.headingText}>Add a new Habit</Text>
         <ScrollView>
           <View style={styles.separator}></View>
           <TextInput

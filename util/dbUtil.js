@@ -12,7 +12,7 @@ export function setupDbTablesForce() {
         "create TABLE IF NOT EXISTS habit_inputs (cal_date text NOT NULL, habit_id integer Not NULL, perf integer not NULL, PRIMARY KEY(cal_date, habit_id));"
       );
       tx.executeSql(
-        "create TABLE IF NOT EXISTS user_info (user_id integer primary key not NULL, name text Not NULL);"
+        "create TABLE IF NOT EXISTS user_pref (key text primary key not NULL, value text Not NULL);"
       );
     },
     (error) => console.log(error),

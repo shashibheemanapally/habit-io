@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "habit-io-draft",
-    "slug": "habit-io-draft",
+    "name": "habit-io",
+    "slug": "habit-io",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -19,19 +19,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.shashi.habitiodraft"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      [
-        "expo-notifications",
-        {
-          "icon": "./local/assets/icon.png",
-          "color": "#ffffff"
-        }
-      ]
-    ]
+
+    "extra": {
+      "eas": {
+        "projectId": "ef2f6b0f-66ab-4614-bae7-cd193faa844a"
+      }
+    }
   }
 }
